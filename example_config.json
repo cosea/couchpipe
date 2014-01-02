@@ -1,0 +1,12 @@
+[
+	{
+		"comment": "only the fields below are parsed. all other fields (including this) are ignored. timeout is in milliseconds",
+		"from":"http://some.host/some_couchdb/_changes?feed=continuous&heartbeat=1000",
+		"from_user":"user",
+		"from_pass":"examplepass",
+		"to":"http://localhost:9090/some_server",
+		"to_user":null,
+		"to_pass":null,
+		"timeout": 10000
+	}
+]
