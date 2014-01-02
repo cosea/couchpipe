@@ -5,16 +5,19 @@ This server is intended to be used on the same host as the target http server.
 
 ## Why?
 Long running HTTP connections are unusual and some frameworks have problems managing them.
-Specifically. [vert.x][http://www.vertx.io] has no method to close a long running HTTP connection.
-See [this][https://groups.google.com/forum/#!topic/vertx/MUVdf4xg_7w] discussion on the topic.
+Specifically, [vert.x](http://www.vertx.io) has no method to close a long running HTTP connection but we needed this.
+
+See [this](https://groups.google.com/forum/#!topic/vertx/MUVdf4xg_7w) discussion on the topic.
+
 
 This server provides a minimalistic way to watch for timeouts on changes feeds and to deliver single HTTP requests to some other processor.
 
 Usage
 =====
 ## Configure
-Write a config that looks just like the [example_config][example_config.json].
+Write a config that looks just like the [example_config](example_config.json).
 The timeout parameter is specified in milliseconds.
+
 You can specify as many from/to pipes as you wish.
 
     [
@@ -41,6 +44,7 @@ TODO
 ====
 
 [] Move build to gradle
+
 [] Remove Jackson lib
 
 License
@@ -49,5 +53,5 @@ Distributed under modified BSD license. See LICENSE.txt for specifics.
 
 Libraries used
 ==============
-[Jackson][http://jackson.codehaus.org/] [license][http://www.apache.org/licenses/LICENSE-2.0]
-[Apache Commons Codec][https://commons.apache.org/proper/commons-codec/] [license][http://www.apache.org/licenses/LICENSE-2.0]
+[Jackson](http://jackson.codehaus.org/) [license](http://www.apache.org/licenses/LICENSE-2.0)
+[Apache Commons Codec](https://commons.apache.org/proper/commons-codec/) [license](http://www.apache.org/licenses/LICENSE-2.0)
