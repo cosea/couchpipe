@@ -132,8 +132,6 @@ public class Dispatcher extends Thread {
 							dos.writeBytes(line);
 							dos.flush();
 							int responseCode = out.getResponseCode();
-							System.out.println("c: " + responseCode + " w: " + line);
-
 						} catch (Exception e) {
 							e.printStackTrace();
 						} finally {
@@ -144,7 +142,6 @@ public class Dispatcher extends Thread {
 								stream.close();
 							}
 						}
-						System.out.println("data: " + line);
 					}
 				}
 				sleep(10);
