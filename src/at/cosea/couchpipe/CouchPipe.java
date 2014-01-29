@@ -29,7 +29,7 @@ public class CouchPipe {
 	 */
 	public static void main(final String[] args) {
 		if (args.length != 1) {
-			System.out.println("path to config.json is required.");
+			logger.severe("path to config.json is required.");
 			System.exit(1);
 		}
 
