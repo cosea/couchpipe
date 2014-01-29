@@ -137,7 +137,6 @@ public class Dispatcher extends Thread {
 							dos = new DataOutputStream(stream);
 							dos.writeBytes(line);
 							dos.flush();
-							int responseCode = out.getResponseCode();
 						} catch (Exception e) {
 							logger.log(Level.WARNING, "could not write to stream", e);
 						} finally {
@@ -152,7 +151,8 @@ public class Dispatcher extends Thread {
 				}
 				sleep(10);
 			}
-
+		} catch (InterruptedException e) {
+			// this is expected
 		} catch (Exception e) {
 			logger.log(Level.WARNING, "exception in run()", e);
 		} finally {
