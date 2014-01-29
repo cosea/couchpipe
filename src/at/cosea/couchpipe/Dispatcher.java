@@ -34,6 +34,8 @@ public class Dispatcher extends Thread {
 	private Logger logger = Logger.getLogger(getClass().getSimpleName());
 
 	private TimerTask task = new TimerTask() {
+		private int counter;
+
 		@Override
 		public void run() {
 			// check timeout
@@ -43,9 +45,10 @@ public class Dispatcher extends Thread {
 				new Dispatcher(from, fromAuth, to, toAuth, timeout).start();
 				running = false;
 				interrupt();
-			} else {
+			} else if (counter++ == 10) {
 				// timeout check pass
-				logger.info("timeout check passed");
+				logger.info("10 timeout checks passed");
+				counter = 0;
 			}
 		}
 	};
