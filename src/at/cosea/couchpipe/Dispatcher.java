@@ -11,6 +11,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A dispatcher for a specific connection
@@ -28,13 +30,16 @@ public class Dispatcher extends Thread {
 	private BufferedReader br;
 	private String toAuth;
 	private String fromAuth;
+
+	private Logger logger = Logger.getLogger(getClass().getSimpleName());
+
 	private TimerTask task = new TimerTask() {
 		@Override
 		public void run() {
 			// check timeout
 			if (System.currentTimeMillis() - lastHeartbeat > timeout) {
 				// we have a timeout. reconnect
-				System.err.println("timeout detected, reconnecting");
+				logger.warning("timeout detected, reconnecting");
 				new Dispatcher(from, fromAuth, to, toAuth, timeout).start();
 				running = false;
 				interrupt();
@@ -54,7 +59,7 @@ public class Dispatcher extends Thread {
 				br.close();
 			}
 		} catch (IOException e) {
-			System.out.println("exception");
+			logger.log(Level.WARNING, "closeAll()", e);
 		}
 		if (task != null) {
 			task.cancel();
@@ -133,7 +138,7 @@ public class Dispatcher extends Thread {
 							dos.flush();
 							int responseCode = out.getResponseCode();
 						} catch (Exception e) {
-							e.printStackTrace();
+							logger.log(Level.WARNING, "could not write to stream", e);
 						} finally {
 							if (dos != null) {
 								dos.close();
@@ -147,9 +152,8 @@ public class Dispatcher extends Thread {
 				sleep(10);
 			}
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
+			logger.log(Level.WARNING, "exception in run()", e);
 		} finally {
 			try {
 				if (br != null) {
@@ -161,8 +165,7 @@ public class Dispatcher extends Thread {
 				if (isr != null) {
 					isr.close();
 				}
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			} catch (IOException e) {
 			}
 			try {
 				if (is != null) {
