@@ -45,6 +45,7 @@ public class Dispatcher extends Thread {
 				interrupt();
 			} else {
 				// timeout check pass
+				logger.info("timeout check passed");
 			}
 		}
 	};
