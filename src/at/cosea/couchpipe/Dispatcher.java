@@ -98,6 +98,8 @@ public class Dispatcher extends Thread {
 	@Override
 	public void run() {
 		super.run();
+		// set the initial hearbeat
+		lastHeartbeat = System.currentTimeMillis();
 		// start the watchdog timer
 		timer.schedule(task, 1000, timeout / 10);
 		InputStream is = null;
