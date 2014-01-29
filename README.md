@@ -51,7 +51,7 @@ Java 1.7
 
 TODO
 ====
--[] Add some loger. System.out.printline is no good idea.-
+~~[] Add some loger. System.out.printline is no good idea.~~ fixed in 2e71377e15998ce85f4195bba6296f8ac0252c34
 
 [] Move build to gradle
 
