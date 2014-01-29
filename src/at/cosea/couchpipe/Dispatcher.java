@@ -97,6 +97,8 @@ public class Dispatcher extends Thread {
 	@Override
 	public void run() {
 		super.run();
+		// start the watchdog timer
+		timer.schedule(task, 1000, timeout / 10);
 		InputStream is = null;
 		InputStreamReader isr = null;
 		try {
@@ -112,8 +114,6 @@ public class Dispatcher extends Thread {
 			br = new BufferedReader(isr);
 			String line;
 			// connect to the stream
-			// start the watchdog timer
-			timer.schedule(task, 1000, timeout / 10);
 			running = true;
 			while (running) {
 				if (br.ready()) {
