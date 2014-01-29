@@ -142,6 +142,7 @@ public class Dispatcher extends Thread {
 							dos = new DataOutputStream(stream);
 							dos.writeBytes(line);
 							dos.flush();
+							out.getResponseCode(); // keep this line! it executes the whole http connection
 						} catch (Exception e) {
 							logger.log(Level.WARNING, "could not write to stream", e);
 						} finally {
