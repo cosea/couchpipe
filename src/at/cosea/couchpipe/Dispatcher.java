@@ -27,7 +27,6 @@ public class Dispatcher extends Thread {
 	private URL from;
 	private long lastHeartbeat = 0;
 	private Timer timer = new Timer();
-	private BufferedReader br;
 	private String toAuth;
 	private String fromAuth;
 
@@ -40,11 +39,9 @@ public class Dispatcher extends Thread {
 		public void run() {
 			// check timeout
 			if (System.currentTimeMillis() - lastHeartbeat > timeout) {
-				// we have a timeout. reconnect
-				logger.warning("timeout detected, reconnecting");
-				new Dispatcher(from, fromAuth, to, toAuth, timeout).start();
-				running = false;
-				interrupt();
+				// we have a timeout. restart
+				logger.warning("timeout detected, restarting");
+				restart();
 			} else if (counter++ == 10) {
 				// timeout check pass
 				logger.info("10 timeout checks passed");
@@ -55,24 +52,11 @@ public class Dispatcher extends Thread {
 	private boolean running;
 
 	/**
-	 * Closes all ressources
+	 * Restarts the thread.
 	 */
-	private void closeAll() {
-		try {
-			if (br != null) {
-				br.close();
-			}
-		} catch (IOException e) {
-			logger.log(Level.WARNING, "closeAll()", e);
-		}
-		if (task != null) {
-			task.cancel();
-		}
-		if (timer != null) {
-			timer.cancel();
-		}
-		task = null;
-		timer = null;
+	private void restart() {
+		interrupt();
+		new Dispatcher(from, fromAuth, to, toAuth, timeout).start();
 	}
 
 	/**
@@ -107,6 +91,7 @@ public class Dispatcher extends Thread {
 		timer.schedule(task, 1000, timeout / 10);
 		InputStream is = null;
 		InputStreamReader isr = null;
+		BufferedReader br = null;
 		try {
 			URLConnection conn = from.openConnection();
 			conn.setDoInput(true);
@@ -161,6 +146,7 @@ public class Dispatcher extends Thread {
 			// this is expected
 		} catch (Exception e) {
 			logger.log(Level.WARNING, "exception in run()", e);
+			restart();
 		} finally {
 			try {
 				if (br != null) {
@@ -180,7 +166,15 @@ public class Dispatcher extends Thread {
 				}
 			} catch (IOException e) {
 			}
+			if (task != null) {
+				task.cancel();
+			}
+			if (timer != null) {
+				timer.cancel();
+			}
+			task = null;
+			timer = null;
+			running = false;
 		}
-		closeAll();
 	}
 }
