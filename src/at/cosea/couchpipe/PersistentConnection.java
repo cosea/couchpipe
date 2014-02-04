@@ -50,17 +50,59 @@ public class PersistentConnection extends Thread {
 		}
 	};
 	private boolean running;
+	private InputStream persistentInputStream;
+	private InputStreamReader persistentStreamReader;
+	private BufferedReader persistentBufferedReader;
 
 	/**
-	 * Restarts the thread.
+	 * Restarts all connections.
 	 */
 	private void restart() {
-		interrupt();
-		new PersistentConnection(from, fromAuth, to, toAuth, timeout).start();
+		logger.info("restarting");
+		persistentInputStream = null;
+		persistentStreamReader = null;
+		persistentBufferedReader = null;
+		try {
+			URLConnection conn = from.openConnection();
+			conn.setDoInput(true);
+			conn.setReadTimeout(0);
+			if (fromAuth != null) {
+				conn.setRequestProperty("Authorization", fromAuth);
+			}
+			conn.connect();
+			persistentInputStream = conn.getInputStream();
+			persistentStreamReader = new InputStreamReader(persistentInputStream);
+			persistentBufferedReader = new BufferedReader(persistentStreamReader);
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "exception in restart()", e);
+			running = false;
+			closeAll();
+		}
+	}
+
+	private void closeAll() {
+		try {
+			if (persistentBufferedReader != null) {
+				persistentBufferedReader.close();
+			}
+		} catch (IOException e1) {
+		}
+		try {
+			if (persistentStreamReader != null) {
+				persistentStreamReader.close();
+			}
+		} catch (IOException e1) {
+		}
+		try {
+			if (persistentInputStream != null) {
+				persistentInputStream.close();
+			}
+		} catch (IOException e1) {
+		}
 	}
 
 	/**
-	 * Creates the dispatcher
+	 * Creates the persistent connection
 	 * 
 	 * @param from
 	 *          Url where the connection should be opened
@@ -74,7 +116,11 @@ public class PersistentConnection extends Thread {
 	 *          Timeout to use for checking
 	 * 
 	 */
-	public PersistentConnection(final URL from, final String fromAuth, final URL to, final String toAuth, final long timeout) {
+	public PersistentConnection(final URL from,
+			final String fromAuth,
+			final URL to,
+			final String toAuth,
+			final long timeout) {
 		this.from = from;
 		this.fromAuth = fromAuth;
 		this.to = to;
@@ -85,30 +131,19 @@ public class PersistentConnection extends Thread {
 	@Override
 	public void run() {
 		super.run();
+		// it's not a real restart, but it works the same way
+		restart();
 		// set the initial hearbeat
 		lastHeartbeat = System.currentTimeMillis();
 		// start the watchdog timer
 		timer.schedule(task, 1000, timeout / 10);
-		InputStream is = null;
-		InputStreamReader isr = null;
-		BufferedReader br = null;
-		try {
-			URLConnection conn = from.openConnection();
-			conn.setDoInput(true);
-			conn.setReadTimeout(0);
-			if (fromAuth != null) {
-				conn.setRequestProperty("Authorization", fromAuth);
-			}
-			conn.connect();
-			is = conn.getInputStream();
-			isr = new InputStreamReader(is);
-			br = new BufferedReader(isr);
-			String line;
-			// connect to the stream
-			running = true;
-			while (running) {
-				if (br.ready()) {
-					line = br.readLine();
+		// connect to the stream
+		running = true;
+		while (running) {
+			try {
+				if (persistentBufferedReader != null && persistentBufferedReader.ready()) {
+					String line = persistentBufferedReader.readLine();
+					logger.fine("got: " + line);
 					lastHeartbeat = System.currentTimeMillis();
 					if (line.isEmpty()) {
 						// this is a heartbeat.
@@ -127,54 +162,30 @@ public class PersistentConnection extends Thread {
 							dos = new DataOutputStream(stream);
 							dos.writeBytes(line);
 							dos.flush();
-							out.getResponseCode(); // keep this line! it executes the whole http connection
+							int code = out.getResponseCode(); // keep this line! it executes the whole http connection
+							logger.fine("response code:" + code);
 						} catch (Exception e) {
 							logger.log(Level.WARNING, "could not write to stream", e);
 						} finally {
 							if (dos != null) {
-								dos.close();
+								try {
+									dos.close();
+								} catch (IOException e) {
+								}
 							}
 							if (stream != null) {
-								stream.close();
+								try {
+									stream.close();
+								} catch (IOException e) {
+								}
 							}
 						}
 					}
 				}
 				sleep(10);
+			} catch (InterruptedException | IOException ex) {
+				logger.log(Level.WARNING, "error in run", ex);
 			}
-		} catch (InterruptedException e) {
-			// this is expected
-		} catch (Exception e) {
-			logger.log(Level.WARNING, "exception in run()", e);
-			restart();
-		} finally {
-			try {
-				if (br != null) {
-					br.close();
-				}
-			} catch (IOException e) {
-			}
-			try {
-				if (isr != null) {
-					isr.close();
-				}
-			} catch (IOException e) {
-			}
-			try {
-				if (is != null) {
-					is.close();
-				}
-			} catch (IOException e) {
-			}
-			if (task != null) {
-				task.cancel();
-			}
-			if (timer != null) {
-				timer.cancel();
-			}
-			task = null;
-			timer = null;
-			running = false;
 		}
 	}
 }
