@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * @author Florian Westreicher aka meredrica
  * @since Jan 2, 2014
  */
-public class Dispatcher extends Thread {
+public class PersistentConnection extends Thread {
 
 	private long timeout;
 	private URL to;
@@ -56,7 +56,7 @@ public class Dispatcher extends Thread {
 	 */
 	private void restart() {
 		interrupt();
-		new Dispatcher(from, fromAuth, to, toAuth, timeout).start();
+		new PersistentConnection(from, fromAuth, to, toAuth, timeout).start();
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class Dispatcher extends Thread {
 	 *          Timeout to use for checking
 	 * 
 	 */
-	public Dispatcher(final URL from, final String fromAuth, final URL to, final String toAuth, final long timeout) {
+	public PersistentConnection(final URL from, final String fromAuth, final URL to, final String toAuth, final long timeout) {
 		this.from = from;
 		this.fromAuth = fromAuth;
 		this.to = to;

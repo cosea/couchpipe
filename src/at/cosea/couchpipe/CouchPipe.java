@@ -50,7 +50,7 @@ public class CouchPipe {
 			for (Connection connection : connections) {
 				URL from = new URL(connection.getFrom());
 				URL to = new URL(connection.getTo());
-				new Dispatcher(from, connection.getFromAuth(), to, connection.getToAuth(), connection.getTimeout()).start();
+				new PersistentConnection(from, connection.getFromAuth(), to, connection.getToAuth(), connection.getTimeout()).start();
 			}
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "could not parse connections file", e);
