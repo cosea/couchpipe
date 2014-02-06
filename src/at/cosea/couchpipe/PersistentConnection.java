@@ -59,6 +59,8 @@ public class PersistentConnection extends Thread {
 	 */
 	private void restart() {
 		logger.info("restarting");
+		// set the initial hearbeat
+		lastHeartbeat = System.currentTimeMillis();
 		persistentInputStream = null;
 		persistentStreamReader = null;
 		persistentBufferedReader = null;
@@ -133,8 +135,6 @@ public class PersistentConnection extends Thread {
 		super.run();
 		// it's not a real restart, but it works the same way
 		restart();
-		// set the initial hearbeat
-		lastHeartbeat = System.currentTimeMillis();
 		// start the watchdog timer
 		timer.schedule(task, 1000, timeout / 10);
 		// connect to the stream
