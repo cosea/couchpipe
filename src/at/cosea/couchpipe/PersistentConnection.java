@@ -89,19 +89,19 @@ public class PersistentConnection extends Thread {
 			if (persistentBufferedReader != null) {
 				persistentBufferedReader.close();
 			}
-		} catch (IOException e1) {
+		} catch (IOException e) {
 		}
 		try {
 			if (persistentStreamReader != null) {
 				persistentStreamReader.close();
 			}
-		} catch (IOException e1) {
+		} catch (IOException e) {
 		}
 		try {
 			if (persistentInputStream != null) {
 				persistentInputStream.close();
 			}
-		} catch (IOException e1) {
+		} catch (IOException e) {
 		}
 	}
 
