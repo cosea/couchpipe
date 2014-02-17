@@ -157,30 +157,13 @@ public class PersistentConnection extends Thread {
 							out.setRequestProperty("Authorization", toAuth);
 						}
 						out.setDoOutput(true);
-						OutputStream stream = null;
-						DataOutputStream dos = null;
-						try {
-							stream = out.getOutputStream();
-							dos = new DataOutputStream(stream);
+						try (OutputStream stream = out.getOutputStream(); DataOutputStream dos = new DataOutputStream(stream);) {
 							dos.writeBytes(line);
 							dos.flush();
 							int code = out.getResponseCode(); // keep this line! it executes the whole http connection
 							logger.fine("response code:" + code);
 						} catch (Exception e) {
 							logger.log(Level.WARNING, "could not write to stream", e);
-						} finally {
-							if (dos != null) {
-								try {
-									dos.close();
-								} catch (IOException e) {
-								}
-							}
-							if (stream != null) {
-								try {
-									stream.close();
-								} catch (IOException e) {
-								}
-							}
 						}
 					}
 				}
