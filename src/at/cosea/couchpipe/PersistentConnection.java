@@ -61,6 +61,8 @@ public class PersistentConnection extends Thread {
 		logger.info("restarting");
 		// set the initial hearbeat
 		lastHeartbeat = System.currentTimeMillis();
+		// make sure everything is closed
+		closeAll();
 		persistentInputStream = null;
 		persistentStreamReader = null;
 		persistentBufferedReader = null;
