@@ -40,11 +40,11 @@ public class PersistentConnection extends Thread {
 			// check timeout
 			if (System.currentTimeMillis() - lastHeartbeat > timeout) {
 				// we have a timeout. restart
-				logger.warning("timeout detected on "+to.toString()+", restarting");
+				logger.warning("timeout detected on "+from.toString()+", restarting");
 				restart();
 			} else if (counter++ == 10) {
 				// timeout check pass
-				logger.info("10 timeout checks passed");
+				logger.info("10 timeout checks on "+from.toString()+" passed");
 				counter = 0;
 			}
 		}
@@ -58,7 +58,7 @@ public class PersistentConnection extends Thread {
 	 * Restarts all connections.
 	 */
 	private void restart() {
-		logger.info("restarting");
+		logger.info("restarting " + from.toString());
 		// set the initial hearbeat
 		lastHeartbeat = System.currentTimeMillis()+timeout;
 		// make sure everything is closed
@@ -78,7 +78,7 @@ public class PersistentConnection extends Thread {
 			persistentStreamReader = new InputStreamReader(persistentInputStream);
 			persistentBufferedReader = new BufferedReader(persistentStreamReader);
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "exception in restart()", e);
+			logger.log(Level.SEVERE, "exception in restart() on "+from.toString(), e);
 			running = false;
 			closeAll();
 		}
@@ -169,7 +169,7 @@ public class PersistentConnection extends Thread {
 				}
 				sleep(10);
 			} catch (InterruptedException | IOException ex) {
-				logger.log(Level.WARNING, "error in run", ex);
+				logger.log(Level.WARNING, "error in run on " + from.toString(), ex);
 			}
 		}
 	}
