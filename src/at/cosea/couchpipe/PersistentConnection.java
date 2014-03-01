@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 /**
  * A dispatcher for a specific connection
- * 
+ *
  * @author Florian Westreicher aka meredrica
  * @since Jan 2, 2014
  */
@@ -40,7 +40,7 @@ public class PersistentConnection extends Thread {
 			// check timeout
 			if (System.currentTimeMillis() - lastHeartbeat > timeout) {
 				// we have a timeout. restart
-				logger.warning("timeout detected, restarting");
+				logger.warning("timeout detected on "+to.toString()+", restarting");
 				restart();
 			} else if (counter++ == 10) {
 				// timeout check pass
@@ -60,7 +60,7 @@ public class PersistentConnection extends Thread {
 	private void restart() {
 		logger.info("restarting");
 		// set the initial hearbeat
-		lastHeartbeat = System.currentTimeMillis();
+		lastHeartbeat = System.currentTimeMillis()+timeout;
 		// make sure everything is closed
 		closeAll();
 		persistentInputStream = null;
@@ -107,7 +107,7 @@ public class PersistentConnection extends Thread {
 
 	/**
 	 * Creates the persistent connection
-	 * 
+	 *
 	 * @param from
 	 *          Url where the connection should be opened
 	 * @param fromAuth
@@ -118,7 +118,7 @@ public class PersistentConnection extends Thread {
 	 *          Base64 string to use for http basic auth (or null if no auth needed)
 	 * @param timeout
 	 *          Timeout to use for checking
-	 * 
+	 *
 	 */
 	public PersistentConnection(final URL from,
 			final String fromAuth,
