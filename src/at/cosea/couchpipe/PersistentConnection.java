@@ -53,6 +53,7 @@ public class PersistentConnection extends Thread {
 	private InputStream persistentInputStream;
 	private InputStreamReader persistentStreamReader;
 	private BufferedReader persistentBufferedReader;
+	private int restartExceptions;
 
 	/**
 	 * Restarts all connections.
@@ -77,10 +78,15 @@ public class PersistentConnection extends Thread {
 			persistentInputStream = conn.getInputStream();
 			persistentStreamReader = new InputStreamReader(persistentInputStream);
 			persistentBufferedReader = new BufferedReader(persistentStreamReader);
+			restartExceptions =0;
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "exception in restart() on "+from.toString(), e);
-			running = false;
 			closeAll();
+			if(restartExceptions++>5) {
+				logger.severe("too many failures in restart() on "+from.toString()+", giving up");
+				running = false;
+				timer.cancel();
+			}
 		}
 	}
 
